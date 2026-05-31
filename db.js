@@ -61,11 +61,31 @@ const INITIAL_DATA = {
     }
   ],
   leaderboard: [
-    { name: "David F. (You)", referrals: 14, earned: 1400 },
-    { name: "Sophie Roy", referrals: 9, earned: 900 },
-    { name: "Marc-Andre L.", referrals: 7, earned: 700 },
-    { name: "Chantal Levesque", referrals: 2, earned: 200 },
-    { name: "Ryan Wright", referrals: 1, earned: 100 }
+    { name: "David F.", referrals: 14, earned: 1400 },
+    { name: "Sophie Roy", referrals: 12, earned: 1200 },
+    { name: "Marc-Andre L.", referrals: 9, earned: 900 },
+    { name: "Chloe Dufour", referrals: 8, earned: 800 },
+    { name: "Ryan Wright", referrals: 7, earned: 700 },
+    { name: "Chantal Levesque", referrals: 6, earned: 600 },
+    { name: "Mathieu Tremblay", referrals: 6, earned: 600 },
+    { name: "Samantha Miller", referrals: 5, earned: 500 },
+    { name: "Jean-Francois B.", referrals: 5, earned: 500 },
+    { name: "Marcus Tremblay", referrals: 4, earned: 400 },
+    { name: "Emma Pelletier", referrals: 4, earned: 400 },
+    { name: "Olivier Gagne", referrals: 4, earned: 400 },
+    { name: "Liam Cloutier", referrals: 3, earned: 300 },
+    { name: "Ava Morin", referrals: 3, earned: 300 },
+    { name: "Lucas Bernier", referrals: 3, earned: 300 },
+    { name: "Charlotte Harvey", referrals: 3, earned: 300 },
+    { name: "William Roy", referrals: 2, earned: 200 },
+    { name: "Sophia Dube", referrals: 2, earned: 200 },
+    { name: "Benjamin Tessier", referrals: 2, earned: 200 },
+    { name: "Amelia Simard", referrals: 2, earned: 200 },
+    { name: "James Kennedy", referrals: 1, earned: 100 },
+    { name: "Isabella Poulin", referrals: 1, earned: 100 },
+    { name: "Leo Mercier", referrals: 1, earned: 100 },
+    { name: "Mia Wong", referrals: 1, earned: 100 },
+    { name: "Henry LeBlanc", referrals: 1, earned: 100 }
   ]
 };
 

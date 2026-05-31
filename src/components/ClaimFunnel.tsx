@@ -229,458 +229,487 @@ export const ClaimFunnel: React.FC<ClaimFunnelProps> = ({ onSuccess, onNavigate,
   };
 
   return (
-    <div className="container">
-      {/* Questionnaire Form Progress Bar */}
-      {livesInCanada !== false && (
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-          {[1, 2, 3].map((s) => (
-            <div 
-              key={s} 
-              style={{ 
-                flex: 1, 
-                height: '4px', 
-                borderRadius: '2px', 
-                background: step >= s ? 'var(--accent-success)' : 'var(--border-light)',
-                boxShadow: step >= s ? '0 0 10px rgba(16, 185, 129, 0.4)' : 'none',
-                transition: 'var(--transition-fast)' 
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {step === 1 && (
-        /* STEP 1: CANADIAN RESIDENCY */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'slide-in var(--transition-smooth)' }}>
-          <div className="text-center">
-            <h1 className="title-xl">
-              <span className="gradient-text">Bonus Registration</span>
-            </h1>
-            <p className="subtitle-md">Fill out a 30-second form to claim your $100 CAD payout bonuses.</p>
-          </div>
-
-          <div className="form-card" style={{ gap: '16px' }}>
-            <h3 style={{ fontFamily: 'var(--font-header)', fontSize: '15px', fontWeight: 'bold', textAlign: 'center' }}>
-              Are you currently living in Canada? 🇨🇦
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button
-                type="button"
-                className={`file-upload-zone ${livesInCanada === true ? 'dragging' : ''}`}
-                style={{ padding: '24px', borderStyle: livesInCanada === true ? 'solid' : 'dashed', borderColor: livesInCanada === true ? 'var(--accent-success)' : 'var(--border-light)' }}
-                onClick={() => setLivesInCanada(true)}
-              >
-                <div style={{ fontSize: '24px' }}>🍁</div>
-                <strong style={{ fontSize: '14px', color: livesInCanada === true ? 'var(--accent-success)' : 'var(--text-primary)' }}>
-                  Yes, I reside in Canada
-                </strong>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Eligible for KOHO &amp; Neo bonuses</span>
-              </button>
-
-              <button
-                type="button"
-                className={`file-upload-zone ${livesInCanada === false ? 'dragging' : ''}`}
-                style={{ padding: '24px', borderStyle: livesInCanada === false ? 'solid' : 'dashed', borderColor: livesInCanada === false ? 'var(--accent-danger)' : 'var(--border-light)' }}
-                onClick={() => setLivesInCanada(false)}
-              >
-                <div style={{ fontSize: '24px' }}>✈️</div>
-                <strong style={{ fontSize: '14px', color: livesInCanada === false ? 'var(--accent-danger)' : 'var(--text-primary)' }}>
-                  No, I live outside Canada
-                </strong>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Products restricted to Canada</span>
-              </button>
-            </div>
-
-            <button className="btn-primary" onClick={handleNextStep}>
-              Continue &rarr;
-            </button>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && livesInCanada === false && (
-        /* FALBACK EXIT RESIDENCY */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'slide-in var(--transition-smooth)' }}>
-          <div className="form-card text-center" style={{ padding: '40px 20px', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.02)' }}>
-            <div style={{ fontSize: '40px', marginBottom: '10px' }}>🇨🇦</div>
-            <h2 className="title-xl gradient-text" style={{ fontSize: '22px' }}>Canada Residency Required</h2>
-            <p className="subtitle-md" style={{ margin: '14px 0', fontSize: '13px' }}>
-              Apologies! KOHO and Neo banking products are strictly available to Canadian residents. We cannot process bonuses internationally.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button className="btn-primary" onClick={() => onNavigate('leaderboard')}>
-                👥 Refer Friends &amp; Earn $20 CAD
-              </button>
-              <button className="btn-secondary" onClick={() => { setLivesInCanada(null); setStep(1); }}>
-                Go Back
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && livesInCanada === true && (
-        /* STEP 2: BANK OWNERSHIP */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'slide-in var(--transition-smooth)' }}>
-          <div className="text-center">
-            <h1 className="title-xl">
-              <span className="gradient-text">Card Eligibility</span>
-            </h1>
-            <p className="subtitle-md">Select bank accounts you currently have to check eligible commissions.</p>
-          </div>
-
-          <div className="form-card">
-            <h3 style={{ fontFamily: 'var(--font-header)', fontSize: '14px', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-              Do you already have accounts with these banks?
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* KOHO Switch */}
-              <div 
-                className={`calc-switch-card ${!hasKoho ? 'active koho-active' : ''}`}
-                style={{ padding: '16px', borderStyle: 'solid' }}
-                onClick={() => setHasKoho(!hasKoho)}
-              >
-                <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <strong style={{ fontSize: '14px', color: !hasKoho ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      💳 KOHO Account
-                    </strong>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                      {!hasKoho ? '✨ Eligible for $100 bonus!' : 'Already have account'}
-                    </div>
-                  </div>
-                  <div style={{ 
-                    width: '20px', 
-                    height: '20px', 
-                    borderRadius: '50%', 
-                    border: '1px solid var(--border-light)', 
-                    background: !hasKoho ? 'var(--accent-koho)' : 'none', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontSize: '10px', 
-                    fontWeight: 'bold', 
-                    color: '#000' 
-                  }}>
-                    {!hasKoho ? '✓' : ''}
-                  </div>
-                </div>
-              </div>
-
-              {/* Neo Switch */}
-              <div 
-                className={`calc-switch-card ${!hasNeo ? 'active neo-active' : ''}`}
-                style={{ padding: '16px', borderStyle: 'solid' }}
-                onClick={() => setHasNeo(!hasNeo)}
-              >
-                <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <strong style={{ fontSize: '14px', color: !hasNeo ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      🪙 Neo Financial Account
-                    </strong>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                      {!hasNeo ? '✨ Eligible for $100 bonus!' : 'Already have account'}
-                    </div>
-                  </div>
-                  <div style={{ 
-                    width: '20px', 
-                    height: '20px', 
-                    borderRadius: '50%', 
-                    border: '1px solid var(--border-light)', 
-                    background: !hasNeo ? 'var(--accent-neo)' : 'none', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontSize: '10px', 
-                    fontWeight: 'bold', 
-                    color: '#000' 
-                  }}>
-                    {!hasNeo ? '✓' : ''}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(1)}>
-                &larr; Back
-              </button>
-              <button className="btn-primary" style={{ flex: 2 }} onClick={handleNextStep}>
-                Check Payout Value &rarr;
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && livesInCanada === true && (
-        /* STEP 3: LEAD CONTACT FORM */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'slide-in var(--transition-smooth)' }}>
-          <div className="text-center">
-            <h1 className="title-xl">
-              <span className="gradient-text">Claim My Bonuses</span>
-            </h1>
-            <p className="subtitle-md">Fill out your contact details. An organizer will follow up with invite codes.</p>
-          </div>
-
-          <form className="form-card" onSubmit={handleSubmit}>
-            {error && (
-              <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--accent-danger)', padding: '12px', borderRadius: '10px', fontSize: '13px' }}>
-                ⚠️ {error}
-              </div>
-            )}
-
-            {/* Congratulations Banner */}
-            <div 
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))', 
-                border: '1px solid var(--border-emerald)', 
-                borderRadius: '12px', 
-                padding: '16px', 
-                textAlign: 'center', 
-                boxShadow: '0 0 15px rgba(16, 185, 129, 0.1)' 
-              }}
-            >
-              {getEstimatedPayout() > 0 ? (
-                <>
-                  <div style={{ fontSize: '24px', marginBottom: '4px' }}>🎉</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>CONGRATULATIONS! ELIGIBILITY CONFIRMED</div>
-                  <div style={{ fontSize: '22px', fontFamily: 'var(--font-header)', fontWeight: '800', color: 'var(--accent-success)', marginTop: '4px' }}>
-                    Earn up to ${getEstimatedPayout()} CAD cash!
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: '24px', marginBottom: '4px' }}>👥</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>ACCOUNT OWNERSHIP ALREADY REGISTERED</div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginTop: '4px', lineHeight: '1.4' }}>
-                    You already have both accounts, but **you can earn $20 CAD for every friend** you refer!
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                placeholder="Marcus Miller" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                required 
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Your Email</label>
-              <input 
-                type="email" 
-                className="form-input" 
-                placeholder="marcus.m@example.ca" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                required 
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Phone Number (Best place to reach you)</label>
-              <input 
-                type="tel" 
-                className="form-input" 
-                placeholder="647-555-0192" 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)} 
-                required 
-                disabled={loading}
-              />
-            </div>
-
-            <div className="provider-select-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <div className="form-group">
-                <label className="form-label" style={{ fontSize: '10px' }}>Contact Platform</label>
-                <select 
-                  className="form-input" 
-                  value={contactMethod} 
-                  onChange={(e) => setContactMethod(e.target.value)}
-                  style={{ background: 'rgba(15, 23, 42, 0.7)', cursor: 'pointer' }}
-                  disabled={loading}
-                >
-                  <option value="WhatsApp">💬 WhatsApp</option>
-                  <option value="SMS/Text">📱 SMS / Text</option>
-                  <option value="Direct Call">📞 Direct Call</option>
-                  <option value="Email">✉️ Email</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" style={{ fontSize: '10px' }}>Best Time to Call</label>
-                <select 
-                  className="form-input" 
-                  value={bestTime} 
-                  onChange={(e) => setBestTime(e.target.value)}
-                  style={{ background: 'rgba(15, 23, 42, 0.7)', cursor: 'pointer' }}
-                  disabled={loading}
-                >
-                  <option value="Morning">🌅 Morning</option>
-                  <option value="Afternoon">☀️ Afternoon</option>
-                  <option value="Evening">🌌 Evening</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(2)}>
-                Back
-              </button>
-              <button type="submit" className="btn-primary" style={{ flex: 2 }} disabled={loading}>
-                {loading ? "Registering lead..." : "Submit Form & Claim"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* INLINE STATUS TRACKER (Always visible at the bottom!) */}
-      <div className="faq-item" style={{ marginTop: '20px', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
-        <button 
-          className="faq-question" 
-          type="button"
-          onClick={() => setShowLookup(!showLookup)}
-          style={{ background: 'rgba(255,255,255,0.01)', fontWeight: 'bold' }}
-        >
-          <span>🔍 Track My Referral Payout Status</span>
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '16px', height: '16px', transform: showLookup ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)' }}>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+      <div className="funnel-grid-layout">
         
-        {showLookup && (
-          <div style={{ padding: '16px', background: 'rgba(15, 23, 42, 0.2)', display: 'flex', flexDirection: 'column', gap: '14px', borderTop: '1px solid rgba(255,255,255,0.02)' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="email"
-                placeholder="Enter registered email..."
-                className="form-input"
-                style={{ flex: 1 }}
-                value={lookupEmail}
-                onChange={(e) => setLookupEmail(e.target.value)}
-                onKeyDown={(e) => { if(e.key === 'Enter') handleSearchLookup(); }}
-              />
-              <button 
-                type="button" 
-                className="btn-primary" 
-                style={{ width: 'auto', padding: '10px 16px', fontSize: '12px' }}
-                onClick={() => handleSearchLookup()}
-                disabled={lookupLoading}
-              >
-                {lookupLoading ? "Searching..." : "Track"}
-              </button>
+        {/* Left Column: Brand pitch & Live payouts ticker */}
+        <div className="funnel-left-column">
+          <div className="brand-pitch">
+            <h1 className="title-xl">
+              <span className="gradient-text">BankBonus Hunt</span>
+            </h1>
+            <p className="subtitle-md" style={{ fontSize: '15px', lineHeight: '1.6', marginBottom: '10px' }}>
+              See how regular Canadians are claiming **$100 to $200 CAD** in extra cash bonuses this month by pre-screening eligibility for KOHO and Neo Financial.
+            </p>
+
+            <div className="features-list">
+              <div className="feature-item">
+                <span className="feature-icon">🍁</span>
+                <div className="feature-text">
+                  <strong>100% Canadian Eligible</strong>
+                  <p>Pre-screen eligibility for Canada's highest paying fintech accounts instantly.</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">💰</span>
+                <div className="feature-text">
+                  <strong>Earn up to $200 CAD Extra</strong>
+                  <p>Get official bank signup rewards PLUS our custom $100 organizer bonus.</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">⚡</span>
+                <div className="feature-text">
+                  <strong>Direct E-Transfer Payouts</strong>
+                  <p>Approved earnings are sent directly to your registered Canadian email address.</p>
+                </div>
+              </div>
             </div>
+          </div>
 
-            {lookupError && (
-              <div style={{ color: 'var(--accent-danger)', fontSize: '11px', fontWeight: 'bold' }}>
-                ⚠️ {lookupError}
+          {/* VERIFIED LIVE TICKER */}
+          {summary && summary.recentPayouts && summary.recentPayouts.length > 0 && (
+            <div className="ticker-box">
+              <div className="ticker-title">
+                <div className="ticker-dot"></div>
+                <span>Live verified payouts ticker</span>
               </div>
-            )}
-
-            {lookupResults.map((item) => (
-              <div className="referral-payout-card" key={item.id} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-light)', padding: '12px', borderRadius: '10px' }}>
-                <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className={`badge-outline ${item.provider.toLowerCase()}`} style={{ fontSize: '9px' }}>
-                    {item.provider === 'Both' ? 'KOHO + Neo' : item.provider}
-                  </span>
-                  <span className={`status-badge ${item.status}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
-                    {getStatusBadgeLabel(item.status)}
-                  </span>
-                </div>
-
-                {/* Inline Payout status timeline */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', position: 'relative', margin: '6px 0' }}>
-                  <div style={{ position: 'absolute', left: '0', right: '0', height: '2px', background: 'var(--border-light)', zIndex: 0 }}></div>
-                  <div style={{ 
-                    position: 'absolute', 
-                    left: '0', 
-                    width: item.status === 'approved' ? '100%' : item.status === 'declined' ? '50%' : item.status === 'contacted' ? '50%' : '15%', 
-                    height: '2px', 
-                    background: item.status === 'approved' ? 'var(--accent-success)' : item.status === 'declined' ? 'var(--accent-danger)' : item.status === 'contacted' ? 'var(--accent-pending)' : 'var(--accent-koho)', 
-                    zIndex: 0 
-                  }}></div>
-
-                  {/* Nodes */}
-                  {['Submitted', 'Contacted', 'Paid'].map((label, idx) => {
-                    const isActive = idx === 0 || 
-                      (idx === 1 && (item.status === 'contacted' || item.status === 'approved' || item.status === 'declined')) || 
-                      (idx === 2 && item.status === 'approved');
-                    const isRed = idx === 1 && item.status === 'declined';
-                    const isOrange = idx === 1 && item.status === 'contacted';
-                    return (
-                      <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
-                        <div style={{ 
-                          width: '14px', 
-                          height: '14px', 
-                          borderRadius: '50%', 
-                          background: isRed ? 'var(--accent-danger)' : isOrange ? 'var(--accent-pending)' : isActive ? 'var(--accent-success)' : 'var(--bg-primary)', 
-                          border: isActive ? 'none' : '1px solid var(--border-light)',
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          fontSize: '8px', 
-                          fontWeight: 'bold', 
-                          color: '#FFF' 
-                        }}>
-                          {isActive ? '✓' : ''}
-                        </div>
-                        <span style={{ fontSize: '8px', color: 'var(--text-secondary)', marginTop: '2px' }}>{label}</span>
+              <div className="ticker-list" style={{ height: '36px', overflow: 'hidden', position: 'relative' }}>
+                <div style={{
+                  transform: `translateY(-${tickerIndex * 36}px)`,
+                  transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  {summary.recentPayouts.map((payout, index) => (
+                    <div className="ticker-item" key={index} style={{ height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                      <div>
+                        🍁 <strong>{payout.name}</strong> joined {payout.provider === 'Both' ? 'KOHO+Neo' : payout.provider}
                       </div>
-                    );
-                  })}
-                </div>
-
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '8px', borderRadius: '8px', fontSize: '11px', marginTop: '6px' }}>
-                  <span style={{ color: 'var(--accent-success)', fontWeight: 'bold' }}>Organizer:</span>{' '}
-                  <span style={{ color: 'var(--text-secondary)' }}>{getStatusMessage(item)}</span>
+                      <span>+${payout.amount} CAD Paid ({formatRelativeTime(payout.time)})</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '8px' }}>
+                Total Paid Out: <span style={{ color: 'var(--accent-success)', fontWeight: 'bold' }}>${summary.stats.totalPaidOut} CAD</span>
+              </div>
+            </div>
+          )}
+        </div>
 
-      {/* VERIFIED LIVE TICKER (Always visible at the bottom!) */}
-      {summary && summary.recentPayouts && summary.recentPayouts.length > 0 && (
-        <div className="ticker-box" style={{ marginTop: '20px' }}>
-          <div className="ticker-title">
-            <div className="ticker-dot"></div>
-            <span>Live verified payouts ticker</span>
-          </div>
-          <div className="ticker-list" style={{ height: '36px', overflow: 'hidden', position: 'relative' }}>
-            <div style={{
-              transform: `translateY(-${tickerIndex * 36}px)`,
-              transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              {summary.recentPayouts.map((payout, index) => (
-                <div className="ticker-item" key={index} style={{ height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-                  <div>
-                    🍁 <strong>{payout.name}</strong> joined {payout.provider === 'Both' ? 'KOHO+Neo' : payout.provider}
-                  </div>
-                  <span>+${payout.amount} CAD Paid ({formatRelativeTime(payout.time)})</span>
-                </div>
+        {/* Right Column: Step form card & tracker */}
+        <div className="funnel-right-column">
+          
+          {/* Questionnaire Form Progress Bar */}
+          {livesInCanada !== false && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+              {[1, 2, 3].map((s) => (
+                <div 
+                  key={s} 
+                  style={{ 
+                    flex: 1, 
+                    height: '4px', 
+                    borderRadius: '2px', 
+                    background: step >= s ? 'var(--accent-success)' : 'var(--border-light)',
+                    boxShadow: step >= s ? '0 0 10px rgba(16, 185, 129, 0.4)' : 'none',
+                    transition: 'var(--transition-fast)' 
+                  }}
+                />
               ))}
             </div>
+          )}
+
+          {step === 1 && (
+            /* STEP 1: CANADIAN RESIDENCY */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'slide-in var(--transition-smooth)' }}>
+              <div className="form-card" style={{ gap: '16px' }}>
+                <h3 style={{ fontFamily: 'var(--font-header)', fontSize: '15px', fontWeight: 'bold', textAlign: 'center' }}>
+                  Are you currently living in Canada? 🇨🇦
+                </h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <button
+                    type="button"
+                    className={`file-upload-zone ${livesInCanada === true ? 'dragging' : ''}`}
+                    style={{ padding: '24px', borderStyle: livesInCanada === true ? 'solid' : 'dashed', borderColor: livesInCanada === true ? 'var(--accent-success)' : 'var(--border-light)' }}
+                    onClick={() => setLivesInCanada(true)}
+                  >
+                    <div style={{ fontSize: '24px' }}>🍁</div>
+                    <strong style={{ fontSize: '14px', color: livesInCanada === true ? 'var(--accent-success)' : 'var(--text-primary)' }}>
+                      Yes, I reside in Canada
+                    </strong>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Eligible for KOHO &amp; Neo bonuses</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`file-upload-zone ${livesInCanada === false ? 'dragging' : ''}`}
+                    style={{ padding: '24px', borderStyle: livesInCanada === false ? 'solid' : 'dashed', borderColor: livesInCanada === false ? 'var(--accent-danger)' : 'var(--border-light)' }}
+                    onClick={() => setLivesInCanada(false)}
+                  >
+                    <div style={{ fontSize: '24px' }}>✈️</div>
+                    <strong style={{ fontSize: '14px', color: livesInCanada === false ? 'var(--accent-danger)' : 'var(--text-primary)' }}>
+                      No, I live outside Canada
+                    </strong>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Products restricted to Canada</span>
+                  </button>
+                </div>
+
+                {error && <div style={{ color: 'var(--accent-danger)', fontSize: '12px', fontWeight: 'bold', textAlign: 'center' }}>⚠️ {error}</div>}
+
+                <button className="btn-primary" onClick={handleNextStep}>
+                  Continue &rarr;
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && livesInCanada === false && (
+            /* FALBACK EXIT RESIDENCY */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'slide-in var(--transition-smooth)' }}>
+              <div className="form-card text-center" style={{ padding: '40px 20px', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.02)' }}>
+                <div style={{ fontSize: '40px', marginBottom: '10px' }}>🇨🇦</div>
+                <h2 className="title-xl gradient-text" style={{ fontSize: '20px' }}>Canada Residency Required</h2>
+                <p className="subtitle-md" style={{ margin: '14px 0', fontSize: '13px' }}>
+                  Apologies! KOHO and Neo banking products are strictly available to Canadian residents. We cannot process bonuses internationally.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button className="btn-primary" onClick={() => onNavigate('leaderboard')}>
+                    👥 Refer Friends &amp; Earn $20 CAD
+                  </button>
+                  <button className="btn-secondary" onClick={() => { setLivesInCanada(null); setStep(1); }}>
+                    Go Back
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && livesInCanada === true && (
+            /* STEP 2: BANK OWNERSHIP */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'slide-in var(--transition-smooth)' }}>
+              <div className="form-card" style={{ gap: '16px' }}>
+                <h3 style={{ fontFamily: 'var(--font-header)', fontSize: '14px', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '4px', textAlign: 'center' }}>
+                  Do you already have accounts with these banks?
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* KOHO Switch */}
+                  <div 
+                    className={`calc-switch-card ${!hasKoho ? 'active koho-active' : ''}`}
+                    style={{ padding: '16px', borderStyle: 'solid' }}
+                    onClick={() => setHasKoho(!hasKoho)}
+                  >
+                    <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ fontSize: '14px', color: !hasKoho ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                          💳 KOHO Account
+                        </strong>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          {!hasKoho ? '✨ Eligible for $100 bonus!' : 'Already have account'}
+                        </div>
+                      </div>
+                      <div style={{ 
+                        width: '20px', 
+                        height: '20px', 
+                        borderRadius: '50%', 
+                        border: '1px solid var(--border-light)', 
+                        background: !hasKoho ? 'var(--accent-koho)' : 'none', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontSize: '10px', 
+                        fontWeight: 'bold', 
+                        color: '#000' 
+                      }}>
+                        {!hasKoho ? '✓' : ''}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Neo Switch */}
+                  <div 
+                    className={`calc-switch-card ${!hasNeo ? 'active neo-active' : ''}`}
+                    style={{ padding: '16px', borderStyle: 'solid' }}
+                    onClick={() => setHasNeo(!hasNeo)}
+                  >
+                    <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ fontSize: '14px', color: !hasNeo ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                          🪙 Neo Financial Account
+                        </strong>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          {!hasNeo ? '✨ Eligible for $100 bonus!' : 'Already have account'}
+                        </div>
+                      </div>
+                      <div style={{ 
+                        width: '20px', 
+                        height: '20px', 
+                        borderRadius: '50%', 
+                        border: '1px solid var(--border-light)', 
+                        background: !hasNeo ? 'var(--accent-neo)' : 'none', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontSize: '10px', 
+                        fontWeight: 'bold', 
+                        color: '#000' 
+                      }}>
+                        {!hasNeo ? '✓' : ''}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {error && <div style={{ color: 'var(--accent-danger)', fontSize: '12px', fontWeight: 'bold', textAlign: 'center' }}>⚠️ {error}</div>}
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                  <button className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(1)}>
+                    &larr; Back
+                  </button>
+                  <button className="btn-primary" style={{ flex: 2 }} onClick={handleNextStep}>
+                    Check Payout Value &rarr;
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && livesInCanada === true && (
+            /* STEP 3: LEAD CONTACT FORM */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'slide-in var(--transition-smooth)' }}>
+              <form className="form-card" onSubmit={handleSubmit}>
+                {error && (
+                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--accent-danger)', padding: '12px', borderRadius: '10px', fontSize: '13px' }}>
+                    ⚠️ {error}
+                  </div>
+                )}
+
+                {/* Congratulations Banner */}
+                <div 
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))', 
+                    border: '1px solid var(--border-emerald)', 
+                    borderRadius: '12px', 
+                    padding: '16px', 
+                    textAlign: 'center', 
+                    boxShadow: '0 0 15px rgba(16, 185, 129, 0.1)',
+                    marginBottom: '16px'
+                  }}
+                >
+                  {getEstimatedPayout() > 0 ? (
+                    <>
+                      <div style={{ fontSize: '24px', marginBottom: '4px' }}>🎉</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>CONGRATULATIONS! ELIGIBILITY CONFIRMED</div>
+                      <div style={{ fontSize: '22px', fontFamily: 'var(--font-header)', fontWeight: '800', color: 'var(--accent-success)', marginTop: '4px' }}>
+                        Earn up to ${getEstimatedPayout()} CAD cash!
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: '24px', marginBottom: '4px' }}>👥</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 'bold' }}>ACCOUNT OWNERSHIP ALREADY REGISTERED</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginTop: '4px', lineHeight: '1.4' }}>
+                        You already have both accounts, but **you can earn $20 CAD for every friend** you refer!
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Full Name</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="Marcus Miller" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Your Email</label>
+                  <input 
+                    type="email" 
+                    className="form-input" 
+                    placeholder="marcus.m@example.ca" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Phone Number (Best place to reach you)</label>
+                  <input 
+                    type="tel" 
+                    className="form-input" 
+                    placeholder="647-555-0192" 
+                    value={phone} 
+                    onChange={(e) => setPhone(e.target.value)} 
+                    required 
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="provider-select-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '10px' }}>Contact Platform</label>
+                    <select 
+                      className="form-input" 
+                      value={contactMethod} 
+                      onChange={(e) => setContactMethod(e.target.value)}
+                      style={{ background: 'rgba(15, 23, 42, 0.7)', cursor: 'pointer' }}
+                      disabled={loading}
+                    >
+                      <option value="WhatsApp">💬 WhatsApp</option>
+                      <option value="SMS/Text">📱 SMS / Text</option>
+                      <option value="Direct Call">📞 Direct Call</option>
+                      <option value="Email">✉️ Email</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '10px' }}>Best Time to Call</label>
+                    <select 
+                      className="form-input" 
+                      value={bestTime} 
+                      onChange={(e) => setBestTime(e.target.value)}
+                      style={{ background: 'rgba(15, 23, 42, 0.7)', cursor: 'pointer' }}
+                      disabled={loading}
+                    >
+                      <option value="Morning">🌅 Morning</option>
+                      <option value="Afternoon">☀️ Afternoon</option>
+                      <option value="Evening">🌌 Evening</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                  <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setStep(2)}>
+                    Back
+                  </button>
+                  <button type="submit" className="btn-primary" style={{ flex: 2 }} disabled={loading}>
+                    {loading ? "Registering lead..." : "Submit Form & Claim"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* INLINE STATUS TRACKER */}
+          <div className="faq-item" style={{ border: '1px solid var(--border-light)', borderRadius: '12px' }}>
+            <button 
+              className="faq-question" 
+              type="button"
+              onClick={() => setShowLookup(!showLookup)}
+              style={{ background: 'rgba(255,255,255,0.01)', fontWeight: 'bold' }}
+            >
+              <span>🔍 Track My Referral Payout Status</span>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '16px', height: '16px', transform: showLookup ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {showLookup && (
+              <div style={{ padding: '16px', background: 'rgba(15, 23, 42, 0.2)', display: 'flex', flexDirection: 'column', gap: '14px', borderTop: '1px solid rgba(255,255,255,0.02)' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="email"
+                    placeholder="Enter registered email..."
+                    className="form-input"
+                    style={{ flex: 1 }}
+                    value={lookupEmail}
+                    onChange={(e) => setLookupEmail(e.target.value)}
+                    onKeyDown={(e) => { if(e.key === 'Enter') handleSearchLookup(); }}
+                  />
+                  <button 
+                    type="button" 
+                    className="btn-primary" 
+                    style={{ width: 'auto', padding: '10px 16px', fontSize: '12px' }}
+                    onClick={() => handleSearchLookup()}
+                    disabled={lookupLoading}
+                  >
+                    {lookupLoading ? "Searching..." : "Track"}
+                  </button>
+                </div>
+
+                {lookupError && (
+                  <div style={{ color: 'var(--accent-danger)', fontSize: '11px', fontWeight: 'bold' }}>
+                    ⚠️ {lookupError}
+                  </div>
+                )}
+
+                {lookupResults.map((item) => (
+                  <div className="referral-payout-card" key={item.id} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-light)', padding: '12px', borderRadius: '10px' }}>
+                    <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className={`badge-outline ${item.provider.toLowerCase()}`} style={{ fontSize: '9px' }}>
+                        {item.provider === 'Both' ? 'KOHO + Neo' : item.provider}
+                      </span>
+                      <span className={`status-badge ${item.status}`} style={{ fontSize: '9px', padding: '2px 6px' }}>
+                        {getStatusBadgeLabel(item.status)}
+                      </span>
+                    </div>
+
+                    {/* Inline Payout status timeline */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', position: 'relative', margin: '6px 0' }}>
+                      <div style={{ position: 'absolute', left: '0', right: '0', height: '2px', background: 'var(--border-light)', zIndex: 0 }}></div>
+                      <div style={{ 
+                        position: 'absolute', 
+                        left: '0', 
+                        width: item.status === 'approved' ? '100%' : item.status === 'declined' ? '50%' : item.status === 'contacted' ? '50%' : '15%', 
+                        height: '2px', 
+                        background: item.status === 'approved' ? 'var(--accent-success)' : item.status === 'declined' ? 'var(--accent-danger)' : item.status === 'contacted' ? 'var(--accent-pending)' : 'var(--accent-koho)', 
+                        zIndex: 0 
+                      }}></div>
+
+                      {/* Nodes */}
+                      {['Submitted', 'Contacted', 'Paid'].map((label, idx) => {
+                        const isActive = idx === 0 || 
+                          (idx === 1 && (item.status === 'contacted' || item.status === 'approved' || item.status === 'declined')) || 
+                          (idx === 2 && item.status === 'approved');
+                        const isRed = idx === 1 && item.status === 'declined';
+                        const isOrange = idx === 1 && item.status === 'contacted';
+                        return (
+                          <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
+                            <div style={{ 
+                              width: '14px', 
+                              height: '14px', 
+                              borderRadius: '50%', 
+                              background: isRed ? 'var(--accent-danger)' : isOrange ? 'var(--accent-pending)' : isActive ? 'var(--accent-success)' : 'var(--bg-primary)', 
+                              border: isActive ? 'none' : '1px solid var(--border-light)',
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center', 
+                              fontSize: '8px', 
+                              fontWeight: 'bold', 
+                              color: '#FFF' 
+                            }}>
+                              {isActive ? '✓' : ''}
+                            </div>
+                            <span style={{ fontSize: '8px', color: 'var(--text-secondary)', marginTop: '2px' }}>{label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '8px', borderRadius: '8px', fontSize: '11px', marginTop: '6px' }}>
+                      <span style={{ color: 'var(--accent-success)', fontWeight: 'bold' }}>Organizer:</span>{' '}
+                      <span style={{ color: 'var(--text-secondary)' }}>{getStatusMessage(item)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-            Total Paid Out: <span style={{ color: 'var(--accent-success)', fontWeight: 'bold' }}>${summary.stats.totalPaidOut} CAD</span>
-          </div>
+
         </div>
-      )}
+
+      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ClaimFunnel } from './components/ClaimFunnel';
 import { LeaderboardView } from './components/LeaderboardView';
+import { StarsBackground } from './components/StarsBackground';
 
 interface Summary {
   leaderboard: Array<{ name: string; referrals: number; earned: number }>;
@@ -54,11 +55,29 @@ function App() {
 
   return (
     <>
+      <StarsBackground />
+      
       {/* Sticky Premium Logo Header */}
       <header className="app-header">
         <div className="brand" onClick={() => setCurrentView('claim')} style={{ cursor: 'pointer' }}>
           <span className="brand-logo">BonusHunt</span>
           <span className="brand-badge">CAD 🍁</span>
+        </div>
+
+        {/* Responsive Desktop Navigation (Hidden on Mobile) */}
+        <div className="header-nav-links">
+          <button 
+            className={`header-nav-btn ${currentView === 'claim' ? 'active' : ''}`}
+            onClick={() => setCurrentView('claim')}
+          >
+            Get Paid
+          </button>
+          <button 
+            className={`header-nav-btn ${currentView === 'leaderboard' ? 'active' : ''}`}
+            onClick={() => setCurrentView('leaderboard')}
+          >
+            Top Earners
+          </button>
         </div>
         
         {/* Dynamic Total Paid Counter bubble */}
