@@ -8,55 +8,66 @@ interface StarData {
   opacity: number;
   duration: number;
   delay: number;
+  colorType: 'white' | 'blue' | 'gold';
 }
 
 const generateStars = (count: number): StarData[] => {
   const stars: StarData[] = [];
-  // Use a pseudo-random seed or Math.random to generate a static field of stars
   for (let i = 0; i < count; i++) {
+    // Determine color type: 75% White, 15% KOHO Blue, 10% Neo Gold
+    const rand = Math.random();
+    let colorType: 'white' | 'blue' | 'gold' = 'white';
+    if (rand > 0.85) {
+      colorType = 'blue';
+    } else if (rand > 0.75) {
+      colorType = 'gold';
+    }
+
     stars.push({
       id: i,
       left: Math.random() * 100,
       top: Math.random() * 100,
-      size: Math.random() * 2.2 + 0.8, // 0.8px to 3px
-      opacity: Math.random() * 0.5 + 0.4, // 0.4 to 0.9
-      duration: Math.random() * 4 + 2.5, // 2.5s to 6.5s twinkling duration
-      delay: Math.random() * 6, // 0s to 6s delay
+      size: Math.random() * 3.2 + 1.2, // Enhanced size: 1.2px to 4.4px for maximum noticeability
+      opacity: Math.random() * 0.4 + 0.6, // Brightened: 0.6 to 1.0 peak opacities
+      duration: Math.random() * 3.5 + 2.0, // Twinkle speed
+      delay: Math.random() * 5,
+      colorType,
     });
   }
   return stars;
 };
 
 export const StarsBackground: React.FC = () => {
-  // Generate stars once so they stay in consistent positions across renders
-  const stars = useMemo(() => generateStars(120), []);
+  const stars = useMemo(() => generateStars(160), []); // Expanded to 160 stars
 
-  // Preset configuration for 5 beautiful shooting stars to trigger from different parts of the screen
+  // Expanded to 8 dynamic shooting star trajectories spanning different depths
   const shootingStars = [
-    { id: 1, x: 10, y: 15, delay: 1, duration: 4.5 },
-    { id: 2, x: 45, y: 5, delay: 7, duration: 5.5 },
-    { id: 3, x: 75, y: 25, delay: 12, duration: 6 },
-    { id: 4, x: 25, y: 40, delay: 18, duration: 5 },
-    { id: 5, x: 60, y: 50, delay: 24, duration: 6.5 }
+    { id: 1, x: 5, y: 10, delay: 0.5, duration: 4.0 },
+    { id: 2, x: 40, y: 2, delay: 5.0, duration: 4.8 },
+    { id: 3, x: 70, y: 20, delay: 9.5, duration: 5.0 },
+    { id: 4, x: 20, y: 35, delay: 14.0, duration: 4.5 },
+    { id: 5, x: 55, y: 45, delay: 18.5, duration: 5.2 },
+    { id: 6, x: 80, y: 8, delay: 23.0, duration: 4.2 },
+    { id: 7, x: 15, y: 60, delay: 28.0, duration: 5.5 },
+    { id: 8, x: 65, y: 30, delay: 33.0, duration: 4.8 }
   ];
 
   return (
     <div className="stars-container">
-      {/* Brand-Colored Atmospheric Auroras */}
+      {/* Amplified Brand-Colored Atmospheric Auroras */}
       <div className="aurora-glow-1" />
       <div className="aurora-glow-2" />
 
-      {/* 120 Twinkling Stars */}
+      {/* 160 Brilliant Twinkling & Glowing Stars */}
       {stars.map((star) => (
         <div
           key={star.id}
-          className="star"
+          className={`star ${star.colorType}`}
           style={{
             left: `${star.left}%`,
             top: `${star.top}%`,
             width: `${star.size}px`,
             height: `${star.size}px`,
-            // Set inline custom properties to drive CSS keyframes dynamically
             ['--twinkle-duration' as any]: `${star.duration}s`,
             ['--twinkle-delay' as any]: `${star.delay}s`,
             ['--star-opacity' as any]: star.opacity,
@@ -64,7 +75,7 @@ export const StarsBackground: React.FC = () => {
         />
       ))}
 
-      {/* 5 Hardware-Accelerated Diagonal Shooting Stars */}
+      {/* 8 Brighter & Thicker Diagonal Shooting Stars */}
       {shootingStars.map((s) => (
         <div
           key={s.id}
