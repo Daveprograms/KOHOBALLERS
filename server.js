@@ -50,8 +50,8 @@ app.get('/api/config', (req, res) => {
 });
 
 // API 2: Get Referrals & Public Stats (Leaderboard + Recent paid ticker)
-app.get('/api/referrals/summary', (req, res) => {
-  const db = getDB();
+app.get('/api/referrals/summary', async (req, res) => {
+  const db = await getDB();
   
   // Filter for approved items (Paid) to feed the recent ticker
   const recentPayouts = db.proofs
@@ -80,14 +80,14 @@ app.get('/api/referrals/summary', (req, res) => {
 });
 
 // API 3: Get User's Personal Submissions / Leads by Email
-app.get('/api/my-referrals', (req, res) => {
+app.get('/api/my-referrals', async (req, res) => {
   const { email } = req.query;
   if (!email) {
     return res.status(400).json({ error: "Email query parameter is required." });
   }
   
   const searchEmail = email.toString().toLowerCase().trim();
-  const db = getDB();
+  const db = await getDB();
   
   const myProofs = db.proofs.filter(p => 
     p.email.toLowerCase().trim() === searchEmail
@@ -97,14 +97,14 @@ app.get('/api/my-referrals', (req, res) => {
 });
 
 // API 4: Submit Lead screening form (JSON Payload)
-app.post('/api/proofs', (req, res) => {
+app.post('/api/proofs', async (req, res) => {
   const { name, email, phone, contactMethod, livesInCanada, hasKoho, hasNeo, provider } = req.body;
   
   if (!name || !email || !phone || !contactMethod || provider === undefined) {
     return res.status(400).json({ error: "Missing required fields: name, email, phone, contactMethod, provider." });
   }
 
-  const db = getDB();
+  const db = await getDB();
   const newLead = {
     id: `lead_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     name: name.trim(),
@@ -122,7 +122,7 @@ app.post('/api/proofs', (req, res) => {
   };
 
   db.proofs.unshift(newLead);
-  saveDB(db);
+  await saveDB(db);
 
   // Send Lead Email Notification to Admin
   try {
@@ -203,7 +203,7 @@ app.post('/api/proofs', (req, res) => {
 });
 
 // API 5: Admin - Get All Leads
-app.get('/api/admin/proofs', (req, res) => {
+app.get('/api/admin/proofs', async (req, res) => {
   const { passcode } = req.query;
   const adminPasscode = process.env.ADMIN_PASSCODE || '1234';
 
@@ -211,12 +211,12 @@ app.get('/api/admin/proofs', (req, res) => {
     return res.status(401).json({ error: "Access Denied: Invalid passcode." });
   }
 
-  const db = getDB();
+  const db = await getDB();
   res.json(db.proofs);
 });
 
 // API 6: Admin - Update Lead Status CRM (Approve/Decline/Contact)
-app.put('/api/admin/proofs/:id', (req, res) => {
+app.put('/api/admin/proofs/:id', async (req, res) => {
   const { id } = req.params;
   const { passcode, status, adminNotes, payoutRef } = req.body;
   const adminPasscode = process.env.ADMIN_PASSCODE || '1234';
@@ -229,7 +229,7 @@ app.put('/api/admin/proofs/:id', (req, res) => {
     return res.status(400).json({ error: "Invalid status parameter." });
   }
 
-  const db = getDB();
+  const db = await getDB();
   const proofIndex = db.proofs.findIndex(p => p.id === id);
 
   if (proofIndex === -1) {
@@ -273,7 +273,7 @@ app.put('/api/admin/proofs/:id', (req, res) => {
   }
 
   db.proofs[proofIndex] = lead;
-  saveDB(db);
+  await saveDB(db);
 
   res.json({ success: true, proof: lead });
 });
@@ -297,6 +297,10 @@ app.get('*', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 BankBonus Hunt CRM Backend running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 BankBonus Hunt CRM Backend running on port ${PORT}`);
+  });
+}
+
+export default app;

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pg from 'pg';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,7 +121,133 @@ for (let i = 1; i <= 150; i++) {
   });
 }
 
-export const getDB = () => {
+// -------------------------------------------------------------
+// POSTGRESQL POOL INTEGRATION
+// -------------------------------------------------------------
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+let pool = null;
+
+if (connectionString) {
+  const { Pool } = pg;
+  pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false } // Required for Vercel Postgres / Neon / Supabase
+  });
+}
+
+// Initialize tables and auto-seed if empty in PostgreSQL
+const initPostgresDB = async () => {
+  if (!pool) return;
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS proofs (
+        id VARCHAR(100) PRIMARY KEY,
+        name VARCHAR(255),
+        email VARCHAR(255),
+        phone VARCHAR(50),
+        contact_method VARCHAR(100),
+        lives_in_canada BOOLEAN,
+        has_koho BOOLEAN,
+        has_neo BOOLEAN,
+        provider VARCHAR(50),
+        status VARCHAR(50),
+        created_at TIMESTAMP,
+        admin_notes TEXT,
+        payout_ref VARCHAR(100),
+        payout_amount INT DEFAULT 0,
+        processed_at TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS leaderboard (
+        name VARCHAR(255) PRIMARY KEY,
+        referrals INT,
+        earned INT
+      )
+    `);
+
+    // Auto-seed if database is empty
+    const countRes = await pool.query('SELECT COUNT(*) FROM proofs');
+    if (parseInt(countRes.rows[0].count) < 50) {
+      console.log("🌱 Cloud Database empty. Seeding initial mock leads & leaderboard...");
+
+      // Seed proofs
+      for (const proof of INITIAL_DATA.proofs) {
+        await pool.query(`
+          INSERT INTO proofs (id, name, email, phone, contact_method, lives_in_canada, has_koho, has_neo, provider, status, created_at, admin_notes, payout_ref, payout_amount, processed_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          ON CONFLICT (id) DO NOTHING
+        `, [
+          proof.id, proof.name, proof.email, proof.phone, proof.contactMethod,
+          proof.livesInCanada, proof.hasKoho, proof.hasNeo, proof.provider, proof.status,
+          proof.createdAt, proof.adminNotes, proof.payoutRef, proof.payoutAmount || 0, proof.processedAt
+        ]);
+      }
+
+      // Seed leaderboard
+      for (const row of INITIAL_DATA.leaderboard) {
+        await pool.query(`
+          INSERT INTO leaderboard (name, referrals, earned)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (name) DO NOTHING
+        `, [row.name, row.referrals, row.earned]);
+      }
+      console.log("✅ Database seeding completed successfully!");
+    }
+  } catch (err) {
+    console.error("❌ Failed to initialize / seed PostgreSQL database:", err.message);
+  }
+};
+
+// Auto run init in background if Postgres mode
+if (pool) {
+  initPostgresDB();
+}
+
+// -------------------------------------------------------------
+// CORE EXPORTED DATABASE ACTIONS (Unified Asynchronous Interface)
+// -------------------------------------------------------------
+
+export const getDB = async () => {
+  // Option A: PostgreSQL Cloud Database (Vercel)
+  if (pool) {
+    try {
+      const proofsResult = await pool.query('SELECT * FROM proofs ORDER BY created_at DESC');
+      const leaderboardResult = await pool.query('SELECT * FROM leaderboard ORDER BY referrals DESC');
+      
+      const proofs = proofsResult.rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        phone: row.phone,
+        contactMethod: row.contact_method,
+        livesInCanada: row.lives_in_canada,
+        hasKoho: row.has_koho,
+        hasNeo: row.has_neo,
+        provider: row.provider,
+        status: row.status,
+        createdAt: row.created_at ? new Date(row.created_at).toISOString() : null,
+        adminNotes: row.admin_notes || '',
+        payoutRef: row.payout_ref || '',
+        payoutAmount: row.payout_amount,
+        processedAt: row.processed_at ? new Date(row.processed_at).toISOString() : null
+      }));
+
+      const leaderboard = leaderboardResult.rows.map(row => ({
+        name: row.name,
+        referrals: row.referrals,
+        earned: row.earned
+      }));
+
+      return { proofs, leaderboard };
+    } catch (error) {
+      console.error("❌ Failed to read from PostgreSQL database, falling back to empty database", error);
+      return { proofs: [], leaderboard: [] };
+    }
+  }
+
+  // Option B: Local JSON File Database (Development)
   try {
     if (!fs.existsSync(DB_PATH)) {
       saveDB(INITIAL_DATA);
@@ -129,7 +256,6 @@ export const getDB = () => {
     const data = fs.readFileSync(DB_PATH, 'utf-8');
     const parsed = JSON.parse(data);
     
-    // Force reset if database has less than 100 items to instantly load the 150 mock payout leads
     if (!parsed.proofs || parsed.proofs.length < 100) {
       saveDB(INITIAL_DATA);
       return INITIAL_DATA;
@@ -141,7 +267,46 @@ export const getDB = () => {
   }
 };
 
-export const saveDB = (data) => {
+export const saveDB = async (data) => {
+  // Option A: PostgreSQL Cloud Database (Vercel)
+  if (pool) {
+    try {
+      // Upsert proofs
+      for (const proof of data.proofs) {
+        await pool.query(`
+          INSERT INTO proofs (id, name, email, phone, contact_method, lives_in_canada, has_koho, has_neo, provider, status, created_at, admin_notes, payout_ref, payout_amount, processed_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          ON CONFLICT (id) DO UPDATE SET
+            status = EXCLUDED.status,
+            admin_notes = EXCLUDED.admin_notes,
+            payout_ref = EXCLUDED.payout_ref,
+            payout_amount = EXCLUDED.payout_amount,
+            processed_at = EXCLUDED.processed_at
+        `, [
+          proof.id, proof.name, proof.email, proof.phone, proof.contactMethod,
+          proof.livesInCanada, proof.hasKoho, proof.hasNeo, proof.provider, proof.status,
+          proof.createdAt, proof.adminNotes || '', proof.payoutRef || '', proof.payoutAmount || 0, proof.processedAt
+        ]);
+      }
+
+      // Upsert leaderboard
+      for (const row of data.leaderboard) {
+        await pool.query(`
+          INSERT INTO leaderboard (name, referrals, earned)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (name) DO UPDATE SET
+            referrals = EXCLUDED.referrals,
+            earned = EXCLUDED.earned
+        `, [row.name, row.referrals, row.earned]);
+      }
+      return true;
+    } catch (error) {
+      console.error("❌ Failed to save to PostgreSQL database", error);
+      return false;
+    }
+  }
+
+  // Option B: Local JSON File Database (Development)
   try {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
     return true;

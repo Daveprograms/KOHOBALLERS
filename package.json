@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"nodemon server.js\" \"vite\"",
-    "backend": "nodemon server.js",
+    "dev": "concurrently \"nodemon --ignore database.json --ignore uploads/ server.js\" \"vite\"",
+    "backend": "nodemon --ignore database.json --ignore uploads/ server.js",
     "frontend": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -19,6 +19,7 @@
     "express": "^4.19.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
+    "pg": "^8.21.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
