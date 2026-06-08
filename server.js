@@ -185,12 +185,15 @@ app.post('/api/proofs', async (req, res) => {
         `
       };
       
-      transporter.sendMail(mailOptions, (mailErr, info) => {
-        if (mailErr) {
-          console.error("❌ Nodemailer failed to send email notification:", mailErr.message);
-        } else {
-          console.log("📧 Lead email notification dispatched successfully:", info.response);
-        }
+      await new Promise((resolve) => {
+        transporter.sendMail(mailOptions, (mailErr, info) => {
+          if (mailErr) {
+            console.error("❌ Nodemailer failed to send email notification:", mailErr.message);
+          } else {
+            console.log("📧 Lead email notification dispatched successfully:", info.response);
+          }
+          resolve(); // Resolve to let serverless function respond
+        });
       });
     } else {
       console.log("⚠️ Lead email notification skipped: SMTP parameters are missing or defaulted in .env");
